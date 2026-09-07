@@ -1,0 +1,132 @@
+.stay-classy-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.flip-button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #ffffff;
+  background-color: #2a3a4d;
+  border: 1px solid #ffffff;
+  border-radius: 50px;
+  padding: 12px 30px;
+  text-decoration: none;
+  transition: background-color 0.3s, transform 0.3s;
+  cursor: pointer;
+  margin-top: 40px;
+  z-index: 10;
+}
+
+.flip-button:hover {
+  background-color: #3a526a;
+  transform: scale(1.05);
+}
+
+.stay-classy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  width: 80vw;
+  height: 80vw;
+  max-width: 1000px;
+  max-height: 800px;
+  gap: 0px;
+}
+
+.flip-card {
+  background-color: transparent;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  border-radius: 5px;
+}
+
+.flip-card-front {
+  background-color: #2a3a4d; /* Matching the new logo's background */
+  background-image: url('/images/yaritu_flip_logo.svg');
+  background-size: 500% 500%;
+}
+
+/* Position the background image for each tile - 4x4 grid centered */
+.flip-card:nth-child(1) .flip-card-front { background-position: 12.5% 12.5%; }
+.flip-card:nth-child(2) .flip-card-front { background-position: 37.5% 12.5%; }
+.flip-card:nth-child(3) .flip-card-front { background-position: 62.5% 12.5%; }
+.flip-card:nth-child(4) .flip-card-front { background-position: 87.5% 12.5%; }
+
+.flip-card:nth-child(5) .flip-card-front { background-position: 12.5% 37.5%; }
+.flip-card:nth-child(6) .flip-card-front { background-position: 37.5% 37.5%; }
+.flip-card:nth-child(7) .flip-card-front { background-position: 62.5% 37.5%; }
+.flip-card:nth-child(8) .flip-card-front { background-position: 87.5% 37.5%; }
+
+.flip-card:nth-child(9) .flip-card-front { background-position: 12.5% 62.5%; }
+.flip-card:nth-child(10) .flip-card-front { background-position: 37.5% 62.5%; }
+.flip-card:nth-child(11) .flip-card-front { background-position: 62.5% 62.5%; }
+.flip-card:nth-child(12) .flip-card-front { background-position: 87.5% 62.5%; }
+
+.flip-card:nth-child(13) .flip-card-front { background-position: 12.5% 87.5%; }
+.flip-card:nth-child(14) .flip-card-front { background-position: 37.5% 87.5%; }
+.flip-card:nth-child(15) .flip-card-front { background-position: 62.5% 87.5%; }
+.flip-card:nth-child(16) .flip-card-front { background-position: 87.5% 87.5%; }
+
+/* Mobile: keep 4x4 grid and show the central 4x4 area of the logo */
+@media (max-width: 768px) {
+  .stay-classy-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    /* widescreen feel on mobile: wider than tall */
+    box-sizing: border-box;
+    padding: 0 0px;
+    width: calc(100vw - 24px);
+    height: calc((100vw - 24px) * 0.72);
+    max-width: 640px;
+    max-height: 460px;
+    gap: 1px;
+  }
+
+  /* Hide tiles beyond the 16th (only show 4x4) */
+  .stay-classy-grid .flip-card:nth-child(n+17) {
+    display: none;
+  }
+}
+
+
+.flip-card-back {
+  background-color: #2980b9;
+  color: white;
+  transform: rotateY(180deg);
+  overflow: hidden;
+  position: relative; /* allow next/image fill positioning */
+}
+
+.flip-card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
