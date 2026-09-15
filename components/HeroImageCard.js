@@ -164,6 +164,7 @@ export default function HeroImageCard({ item, onUpdate, onDelete }) {
                 sizes="(max-width: 600px) 100vw, 300px"
                 className="hero-card-image"
                 priority={true}
+                unoptimized={true}
               />
             );
           }
