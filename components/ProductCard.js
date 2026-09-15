@@ -243,6 +243,7 @@ export default function ProductCard({ product, isAdmin, onProductClick, onEdit, 
                                 placeholder={blurUrl ? 'blur' : undefined}
                                 blurDataURL={blurUrl || undefined}
                                 loading="lazy"
+                                unoptimized={true}
                             />
                         </div>
                         {imagePending && (
