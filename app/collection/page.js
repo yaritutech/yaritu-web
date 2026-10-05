@@ -354,11 +354,20 @@ export default function Collection() {
     };
   }, [openDropdown]);
 
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
-  const currentProducts = filteredProducts.slice(
-    (currentPage - 1) * PRODUCTS_PER_PAGE,
-    currentPage * PRODUCTS_PER_PAGE,
-  );
+  const totalPages = jewelleryMode
+    ? Math.ceil(jewelleryItems.length / PRODUCTS_PER_PAGE)
+    : Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+
+  const currentProducts = jewelleryMode
+    ? jewelleryItems.slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE,
+      )
+    : filteredProducts.slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE,
+      );
+
   const handlePageChange = (page) => setCurrentPage(page);
 
   const slugify = (value) => {
