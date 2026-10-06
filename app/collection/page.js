@@ -1307,65 +1307,63 @@ export default function Collection() {
             <div
               className={`${styles["product-grid"]} ${styles[viewMode === "grid" ? "grid-view" : "single-column"]}`}
             >
-              {(!jewelleryMode ? currentProducts : jewelleryItems).map(
-                (item) => (
-                  <ProductCard
-                    key={item._id || item.id}
-                    product={item}
-                    isAdmin={isAdmin}
-                    showDescription={false}
-                    onProductClick={handleProductClick}
-                    onEdit={(p) => {
+              {currentProducts.map((item) => (
+                <ProductCard
+                  key={item._id || item.id}
+                  product={item}
+                  isAdmin={isAdmin}
+                  showDescription={false}
+                  onProductClick={handleProductClick}
+                  onEdit={(p) => {
+                    if (jewelleryMode) {
+                      setEditingCollection(p);
+                      setShowJewelleryModal(true);
+                    } else {
+                      setEditingCollection(p);
+                      setShowModal(true);
+                    }
+                  }}
+                  onDelete={async (p) => {
+                    if (!confirm("Delete this item?")) return;
+                    try {
                       if (jewelleryMode) {
-                        setEditingCollection(p);
-                        setShowJewelleryModal(true);
+                        const res = await fetch("/api/admin/jewellery", {
+                          method: "DELETE",
+                          headers: { "Content-Type": "application/json" },
+                          credentials: "include",
+                          body: JSON.stringify({ id: p._id }),
+                        });
+                        if (res.ok)
+                          setJewelleryItems((prev) =>
+                            prev.filter((j) => j._id !== p._id),
+                          );
+                        else alert("Failed to delete");
                       } else {
-                        setEditingCollection(p);
-                        setShowModal(true);
-                      }
-                    }}
-                    onDelete={async (p) => {
-                      if (!confirm("Delete this item?")) return;
-                      try {
-                        if (jewelleryMode) {
-                          const res = await fetch("/api/admin/jewellery", {
-                            method: "DELETE",
-                            headers: { "Content-Type": "application/json" },
-                            credentials: "include",
-                            body: JSON.stringify({ id: p._id }),
-                          });
-                          if (res.ok)
-                            setJewelleryItems((prev) =>
-                              prev.filter((j) => j._id !== p._id),
+                        const res = await fetch(`/api/collections/${p._id}`, {
+                          method: "DELETE",
+                        });
+                        if (res.ok) {
+                          setCollections((prev) => {
+                            const updated = (prev || []).filter(
+                              (c) => c._id !== p._id,
                             );
-                          else alert("Failed to delete");
-                        } else {
-                          const res = await fetch(`/api/collections/${p._id}`, {
-                            method: "DELETE",
-                          });
-                          if (res.ok) {
-                            setCollections((prev) => {
-                              const updated = (prev || []).filter(
-                                (c) => c._id !== p._id,
+                            try {
+                              localStorage.setItem(
+                                COLLECTIONS_CACHE_KEY,
+                                JSON.stringify(updated),
                               );
-                              try {
-                                localStorage.setItem(
-                                  COLLECTIONS_CACHE_KEY,
-                                  JSON.stringify(updated),
-                                );
-                              } catch (_) {}
-                              return updated;
-                            });
-                          } else alert("Failed to delete");
-                        }
-                      } catch (e) {
-                        console.error(e);
-                        alert("Failed");
+                            } catch (_) {}
+                            return updated;
+                          });
+                        } else alert("Failed to delete");
                       }
-                    }}
-                  />
-                ),
-              )}
+                    } catch (e) {
+                      console.error(e);
+                      alert("Failed");
+                    }
+                  }}
+                />
+              ))}
             </div>
 
             {/* Empty state message */}
