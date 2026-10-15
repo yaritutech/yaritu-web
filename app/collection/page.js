@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import styles from "./collection.module.css";
 import Pagination from "../../components/Pagination";
 import ProductModal from "../../components/ProductModal";
@@ -18,6 +18,7 @@ const META_CACHE_KEY = "yaritu_meta_v1";
 
 export default function Collection() {
   const pathname = usePathname();
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [activeType, setActiveType] = useState(null);
   const [activeSubcategory, setActiveSubcategory] = useState(null);
@@ -378,6 +379,29 @@ export default function Collection() {
       .replace(/^-+|-+$/g, "");
   };
 
+  useEffect(() => {
+    if (!pathname || pathname === "/collection") return;
+
+    const slug = pathname.split("/").filter(Boolean).pop();
+    if (!slug) return;
+
+    const matches = (collections || []).filter(
+      (item) => slugify(item.collectionType || item.type) === slug,
+    );
+
+    if (matches.length > 0) {
+      const type = matches[0].collectionType || matches[0].type;
+      const category = (matches[0].category || "MEN").toUpperCase();
+
+      setJewelleryMode(false);
+      setActiveCategory(category);
+      setActiveType(type);
+      setActiveSubcategory(null);
+      setActiveOccasion(null);
+      setCurrentPage(1);
+    }
+  }, [pathname, collections]);
+
   const getProductUrl = (product) => {
     const category = slugify(product.category || "all");
 
@@ -557,7 +581,9 @@ export default function Collection() {
     setActiveSubcategory(subcategory);
     setActiveOccasion(null);
     setOpenDropdown(null);
-    scrollToCollectionTitle();
+    setCurrentPage(1);
+
+    router.push(`/collection/${slugify(type)}`);
   };
 
   const handleOccasionClick = (category, occasion, subcategory = null) => {
@@ -1307,63 +1333,65 @@ export default function Collection() {
             <div
               className={`${styles["product-grid"]} ${styles[viewMode === "grid" ? "grid-view" : "single-column"]}`}
             >
-              {currentProducts.map((item) => (
-                <ProductCard
-                  key={item._id || item.id}
-                  product={item}
-                  isAdmin={isAdmin}
-                  showDescription={false}
-                  onProductClick={handleProductClick}
-                  onEdit={(p) => {
-                    if (jewelleryMode) {
-                      setEditingCollection(p);
-                      setShowJewelleryModal(true);
-                    } else {
-                      setEditingCollection(p);
-                      setShowModal(true);
-                    }
-                  }}
-                  onDelete={async (p) => {
-                    if (!confirm("Delete this item?")) return;
-                    try {
+              {(!jewelleryMode ? currentProducts : jewelleryItems).map(
+                (item) => (
+                  <ProductCard
+                    key={item._id || item.id}
+                    product={item}
+                    isAdmin={isAdmin}
+                    showDescription={false}
+                    onProductClick={handleProductClick}
+                    onEdit={(p) => {
                       if (jewelleryMode) {
-                        const res = await fetch("/api/admin/jewellery", {
-                          method: "DELETE",
-                          headers: { "Content-Type": "application/json" },
-                          credentials: "include",
-                          body: JSON.stringify({ id: p._id }),
-                        });
-                        if (res.ok)
-                          setJewelleryItems((prev) =>
-                            prev.filter((j) => j._id !== p._id),
-                          );
-                        else alert("Failed to delete");
+                        setEditingCollection(p);
+                        setShowJewelleryModal(true);
                       } else {
-                        const res = await fetch(`/api/collections/${p._id}`, {
-                          method: "DELETE",
-                        });
-                        if (res.ok) {
-                          setCollections((prev) => {
-                            const updated = (prev || []).filter(
-                              (c) => c._id !== p._id,
-                            );
-                            try {
-                              localStorage.setItem(
-                                COLLECTIONS_CACHE_KEY,
-                                JSON.stringify(updated),
-                              );
-                            } catch (_) {}
-                            return updated;
-                          });
-                        } else alert("Failed to delete");
+                        setEditingCollection(p);
+                        setShowModal(true);
                       }
-                    } catch (e) {
-                      console.error(e);
-                      alert("Failed");
-                    }
-                  }}
-                />
-              ))}
+                    }}
+                    onDelete={async (p) => {
+                      if (!confirm("Delete this item?")) return;
+                      try {
+                        if (jewelleryMode) {
+                          const res = await fetch("/api/admin/jewellery", {
+                            method: "DELETE",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({ id: p._id }),
+                          });
+                          if (res.ok)
+                            setJewelleryItems((prev) =>
+                              prev.filter((j) => j._id !== p._id),
+                            );
+                          else alert("Failed to delete");
+                        } else {
+                          const res = await fetch(`/api/collections/${p._id}`, {
+                            method: "DELETE",
+                          });
+                          if (res.ok) {
+                            setCollections((prev) => {
+                              const updated = (prev || []).filter(
+                                (c) => c._id !== p._id,
+                              );
+                              try {
+                                localStorage.setItem(
+                                  COLLECTIONS_CACHE_KEY,
+                                  JSON.stringify(updated),
+                                );
+                              } catch (_) {}
+                              return updated;
+                            });
+                          } else alert("Failed to delete");
+                        }
+                      } catch (e) {
+                        console.error(e);
+                        alert("Failed");
+                      }
+                    }}
+                  />
+                ),
+              )}
             </div>
 
             {/* Empty state message */}
